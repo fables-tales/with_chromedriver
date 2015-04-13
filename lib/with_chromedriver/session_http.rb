@@ -35,9 +35,9 @@ module WithChromedriver
     end
 
     def start_chromedriver_process
-      @port = 9500 + rand(1000)
+      @port = 50000 + rand(10000)
       @chromedriver_process_pipes = Open3.popen3("chromedriver", "--port=#{port}")
-      sleep(0.01)
+      sleep(0.1)
     end
 
     def create_faraday_session

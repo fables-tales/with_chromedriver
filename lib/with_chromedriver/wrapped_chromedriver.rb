@@ -13,6 +13,12 @@ module WithChromedriver
       driver_http.post_execute(script).fetch("value")
     end
 
+    def click(selector)
+      element_id = driver_http.post_element(selector).fetch("value").fetch("ELEMENT")
+      driver_http.post_click(element_id)
+      nil
+    end
+
     private
 
     attr_reader :driver_http

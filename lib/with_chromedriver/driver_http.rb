@@ -11,6 +11,17 @@ module WithChromedriver
       nil
     end
 
+    def post_element(selector)
+      r = session_http.post(
+        "/element",
+        {
+          "using" => "css selector",
+          "value" => selector,
+        }
+      )
+      JSON.parse(r.body)
+    end
+
     def post_execute(script)
       param = {
         "script" => script,
@@ -26,6 +37,11 @@ module WithChromedriver
       p r.body
       p "------------------"
       JSON.parse(r.body)
+    end
+
+    def post_click(element_id)
+      session_http.post("/element/#{element_id}/click", {})
+      nil
     end
 
     private

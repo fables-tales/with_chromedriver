@@ -7,7 +7,7 @@ module WithChromedriver
 
     let(:session_http) { double(:session_http, :post => post_result) }
 
-    let(:post_result) { double }
+    let(:post_result) { double(:post_result) }
     let(:url) { "http://xkcd.com" }
 
     describe "#post_url" do

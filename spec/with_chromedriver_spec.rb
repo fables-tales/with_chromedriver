@@ -23,6 +23,17 @@ RSpec.describe WithChromedriver do
       expect(result).to eq("http://xkcd.com/")
     end
 
+    it "allows users to click elements" do
+      result = WithChromedriver.with_chromedriver do |driver|
+        driver.visit("http://xkcd.com/")
+        driver.click("#middleContainer > ul:nth-child(4) > li:nth-child(1) > a")
+        sleep(1)
+        driver.evaluate_script("return window.location.href");
+      end
+
+      expect(result).to eq("http://xkcd.com/1/")
+    end
+
     it "does not leak chrome processes" do
       expect {
         WithChromedriver.with_chromedriver {}
