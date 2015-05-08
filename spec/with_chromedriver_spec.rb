@@ -42,7 +42,7 @@ RSpec.describe WithChromedriver do
     end
 
     def number_of_chrome_processes
-      `ps aux | grep -ic 'chrome'`
+      `ps aux | grep -i 'chromedriver --port' | grep -vc "grep"`
     end
   end
 end

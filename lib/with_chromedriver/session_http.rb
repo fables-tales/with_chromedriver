@@ -11,9 +11,7 @@ module WithChromedriver
 
     def end_session
       conn.delete("#{session_url}/window")
-
-      Process.kill("TERM", wait_thread.pid)
-      sleep(0.1)
+      release_port
     end
 
     def post(url, params)
@@ -30,26 +28,27 @@ module WithChromedriver
       "/session/#{session_id}"
     end
 
-    def wait_thread
-      @chromedriver_process_pipes[3]
+    def start_chromedriver_process
+      acquire_port
     end
 
-    def start_chromedriver_process
-      @port = 50000 + rand(10000)
-      @chromedriver_process_pipes = Open3.popen3("chromedriver", "--port=#{port}")
-      sleep(0.1)
+    def acquire_port
+      result = {}
+      until result.fetch("success", false)
+        result = JSON.parse(http_connection("http://localhost:8883").post("/acquire", {:_ => "123"}).body)
+      end
+
+      @port = result.fetch("port").to_i
+    end
+
+    def release_port
+      result = http_connection("http://localhost:8883").post("/release", {:port => port})
+      raise "failed to release port" unless JSON.parse(result.body).fetch("success")
     end
 
     def create_faraday_session
-      @conn = Faraday.new(:url => "http://localhost:#{port}") do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
-        faraday.response :logger                  # log requests to STDOUT
-      end
-
+      @conn = http_connection("http://localhost:#{port}")
       response = conn.post("/session", capabilites_param)
-
-      p response
-
       @session_id = JSON.parse(response.body).fetch("sessionId")
     end
 
@@ -64,6 +63,14 @@ module WithChromedriver
       {
         "javascriptEnabled" => true,
       }
+    end
+
+    def http_connection(url)
+      Faraday.new(:url => url) do |faraday|
+        faraday.response :logger                  # log requests to STDOUT
+        faraday.request :url_encoded
+        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+      end
     end
   end
 end
