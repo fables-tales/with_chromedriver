@@ -67,7 +67,6 @@ module WithChromedriver
 
     def http_connection(url)
       Faraday.new(:url => url) do |faraday|
-        faraday.response :logger                  # log requests to STDOUT
         faraday.request :url_encoded
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
